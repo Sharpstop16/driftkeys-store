@@ -1,0 +1,676 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Drift Keys — Automotive Keychains</title>
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  :root {
+    --black: #111110;
+    --white: #ffffff;
+    --gray-50: #f7f6f4;
+    --gray-100: #efefec;
+    --gray-200: #e0dfd9;
+    --gray-400: #a8a79f;
+    --gray-600: #6b6a64;
+    --border: #e0dfd9;
+    --radius: 6px;
+  }
+
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+    background: var(--white);
+    color: var(--black);
+    line-height: 1.5;
+    min-height: 100vh;
+  }
+
+  /* NAV */
+  nav {
+    position: sticky;
+    top: 0;
+    z-index: 100;
+    background: rgba(255,255,255,0.95);
+    backdrop-filter: blur(8px);
+    border-bottom: 1px solid var(--border);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0 2rem;
+    height: 56px;
+  }
+  .brand {
+    font-size: 13px;
+    font-weight: 600;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--black);
+    text-decoration: none;
+  }
+  .cart-btn {
+    background: none;
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 6px 14px;
+    font-size: 13px;
+    cursor: pointer;
+    color: var(--black);
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    transition: background 0.15s;
+  }
+  .cart-btn:hover { background: var(--gray-50); }
+  .cart-count {
+    background: var(--black);
+    color: var(--white);
+    border-radius: 50%;
+    width: 18px;
+    height: 18px;
+    font-size: 11px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    display: none;
+  }
+  .cart-count.visible { display: inline-flex; }
+
+  /* MAIN */
+  main { max-width: 1100px; margin: 0 auto; padding: 0 1.5rem; }
+
+  /* HERO */
+  .hero {
+    padding: 4rem 0 2.5rem;
+    border-bottom: 1px solid var(--border);
+    margin-bottom: 2rem;
+  }
+  .hero-eyebrow {
+    font-size: 11px;
+    font-weight: 500;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--gray-600);
+    margin-bottom: 0.75rem;
+  }
+  .hero h1 {
+    font-size: clamp(28px, 5vw, 48px);
+    font-weight: 500;
+    line-height: 1.15;
+    letter-spacing: -0.02em;
+    max-width: 520px;
+  }
+
+  /* FILTERS */
+  .filter-bar {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 1.5rem;
+    flex-wrap: wrap;
+    gap: 0.75rem;
+  }
+  .filter-label {
+    font-size: 12px;
+    color: var(--gray-600);
+    letter-spacing: 0.05em;
+    text-transform: uppercase;
+  }
+  .filters {
+    display: flex;
+    gap: 6px;
+    flex-wrap: wrap;
+  }
+  .filter-btn {
+    background: none;
+    border: 1px solid var(--border);
+    border-radius: 100px;
+    padding: 5px 14px;
+    font-size: 13px;
+    cursor: pointer;
+    color: var(--gray-600);
+    transition: all 0.15s;
+  }
+  .filter-btn:hover { border-color: var(--gray-400); color: var(--black); }
+  .filter-btn.active {
+    background: var(--black);
+    border-color: var(--black);
+    color: var(--white);
+  }
+
+  /* GRID */
+  .product-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+    gap: 1px;
+    background: var(--border);
+    border: 1px solid var(--border);
+    margin-bottom: 4rem;
+  }
+  .product-card {
+    background: var(--white);
+    cursor: pointer;
+    transition: background 0.15s;
+    position: relative;
+  }
+  .product-card:hover { background: var(--gray-50); }
+  .product-card img {
+    width: 100%;
+    aspect-ratio: 1;
+    object-fit: cover;
+    display: block;
+  }
+  .card-body { padding: 0.875rem 1rem 1.125rem; }
+  .card-title {
+    font-size: 13px;
+    font-weight: 500;
+    color: var(--black);
+    margin-bottom: 4px;
+    line-height: 1.4;
+  }
+  .card-price { font-size: 13px; color: var(--gray-600); }
+  .low-stock-badge {
+    position: absolute;
+    top: 10px;
+    left: 10px;
+    background: rgba(0,0,0,0.7);
+    color: #fff;
+    font-size: 11px;
+    padding: 3px 8px;
+    border-radius: 100px;
+  }
+
+  /* DETAIL PAGE */
+  #detail-page { display: none; padding: 2rem 0 4rem; }
+  .back-btn {
+    background: none;
+    border: none;
+    color: var(--gray-600);
+    font-size: 13px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    margin-bottom: 2rem;
+    padding: 0;
+  }
+  .back-btn:hover { color: var(--black); }
+  .back-btn svg { width: 16px; height: 16px; }
+  .detail-layout {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 4rem;
+    align-items: start;
+  }
+  .detail-img-wrap { position: sticky; top: 72px; }
+  .detail-img {
+    width: 100%;
+    aspect-ratio: 1;
+    object-fit: cover;
+    background: var(--gray-50);
+  }
+  .detail-content { display: flex; flex-direction: column; gap: 1.5rem; }
+  .detail-vendor {
+    font-size: 11px;
+    font-weight: 500;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--gray-600);
+  }
+  .detail-title {
+    font-size: clamp(20px, 3vw, 28px);
+    font-weight: 500;
+    letter-spacing: -0.01em;
+    line-height: 1.25;
+  }
+  .detail-price { font-size: 20px; color: var(--black); }
+  .detail-divider { height: 1px; background: var(--border); }
+  .detail-desc {
+    font-size: 14px;
+    line-height: 1.75;
+    color: var(--gray-600);
+  }
+  .detail-stock { font-size: 13px; color: var(--gray-600); }
+  .detail-stock.low { color: #c0392b; }
+  .add-to-cart-btn {
+    width: 100%;
+    padding: 14px;
+    background: var(--black);
+    color: var(--white);
+    border: none;
+    border-radius: var(--radius);
+    font-size: 14px;
+    font-weight: 500;
+    cursor: pointer;
+    transition: opacity 0.15s;
+    letter-spacing: 0.01em;
+  }
+  .add-to-cart-btn:hover { opacity: 0.85; }
+  .add-to-cart-btn:disabled { opacity: 0.5; cursor: not-allowed; }
+
+  /* CART DRAWER */
+  .cart-overlay {
+    display: none;
+    position: fixed;
+    inset: 0;
+    background: rgba(0,0,0,0.4);
+    z-index: 200;
+  }
+  .cart-overlay.open { display: block; }
+  .cart-drawer {
+    position: fixed;
+    top: 0;
+    right: -420px;
+    width: 100%;
+    max-width: 420px;
+    height: 100%;
+    background: var(--white);
+    z-index: 201;
+    display: flex;
+    flex-direction: column;
+    transition: right 0.3s ease;
+  }
+  .cart-drawer.open { right: 0; }
+  .cart-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 1.25rem 1.5rem;
+    border-bottom: 1px solid var(--border);
+  }
+  .cart-header h2 { font-size: 15px; font-weight: 500; }
+  .close-cart {
+    background: none;
+    border: none;
+    cursor: pointer;
+    color: var(--gray-600);
+    font-size: 22px;
+    line-height: 1;
+    padding: 4px;
+  }
+  .close-cart:hover { color: var(--black); }
+  .cart-items { flex: 1; overflow-y: auto; padding: 1rem 1.5rem; }
+  .cart-empty {
+    text-align: center;
+    padding: 3rem 0;
+    color: var(--gray-600);
+    font-size: 14px;
+  }
+  .cart-item {
+    display: grid;
+    grid-template-columns: 64px 1fr auto;
+    gap: 12px;
+    align-items: center;
+    padding: 1rem 0;
+    border-bottom: 1px solid var(--border);
+  }
+  .cart-item img {
+    width: 64px;
+    height: 64px;
+    object-fit: cover;
+    background: var(--gray-50);
+  }
+  .cart-item-title { font-size: 13px; font-weight: 500; line-height: 1.4; }
+  .cart-item-price { font-size: 13px; color: var(--gray-600); margin-top: 4px; }
+  .cart-item-qty {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-top: 8px;
+  }
+  .qty-btn {
+    background: none;
+    border: 1px solid var(--border);
+    border-radius: 4px;
+    width: 24px;
+    height: 24px;
+    font-size: 14px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: var(--black);
+  }
+  .qty-btn:hover { background: var(--gray-50); }
+  .qty-num { font-size: 13px; min-width: 16px; text-align: center; }
+  .remove-item {
+    background: none;
+    border: none;
+    color: var(--gray-400);
+    cursor: pointer;
+    font-size: 18px;
+    padding: 4px;
+    align-self: start;
+  }
+  .remove-item:hover { color: var(--black); }
+  .cart-footer {
+    padding: 1.25rem 1.5rem;
+    border-top: 1px solid var(--border);
+  }
+  .cart-total {
+    display: flex;
+    justify-content: space-between;
+    font-size: 14px;
+    font-weight: 500;
+    margin-bottom: 1rem;
+  }
+  .checkout-btn {
+    width: 100%;
+    padding: 14px;
+    background: var(--black);
+    color: var(--white);
+    border: none;
+    border-radius: var(--radius);
+    font-size: 14px;
+    font-weight: 500;
+    cursor: pointer;
+    transition: opacity 0.15s;
+  }
+  .checkout-btn:hover { opacity: 0.85; }
+  .checkout-note {
+    font-size: 12px;
+    color: var(--gray-600);
+    text-align: center;
+    margin-top: 0.75rem;
+  }
+
+  /* TOAST */
+  .toast {
+    position: fixed;
+    bottom: 2rem;
+    left: 50%;
+    transform: translateX(-50%) translateY(80px);
+    background: var(--black);
+    color: var(--white);
+    padding: 10px 20px;
+    border-radius: 100px;
+    font-size: 13px;
+    z-index: 300;
+    transition: transform 0.3s ease;
+    white-space: nowrap;
+  }
+  .toast.show { transform: translateX(-50%) translateY(0); }
+
+  @media (max-width: 640px) {
+    nav { padding: 0 1rem; }
+    main { padding: 0 1rem; }
+    .hero { padding: 2.5rem 0 2rem; }
+    .detail-layout { grid-template-columns: 1fr; gap: 1.5rem; }
+    .detail-img-wrap { position: static; }
+    .product-grid { grid-template-columns: repeat(2, 1fr); }
+  }
+</style>
+</head>
+<body>
+
+<nav>
+  <a class="brand" href="#" onclick="showListing(); return false;">Drift Keys</a>
+  <button class="cart-btn" onclick="openCart()">
+    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="9" cy="21" r="1"/><circle cx="20" cy="21" r="1"/><path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"/></svg>
+    Cart
+    <span class="cart-count" id="cart-count">0</span>
+  </button>
+</nav>
+
+<main>
+  <!-- LISTING -->
+  <div id="listing-page">
+    <div class="hero">
+      <p class="hero-eyebrow">Drift Keys</p>
+      <h1>Precision keychains for car people</h1>
+    </div>
+
+    <div class="filter-bar">
+      <span class="filter-label" id="count-label">19 products</span>
+      <div class="filters">
+        <button class="filter-btn active" data-filter="all">All</button>
+        <button class="filter-btn" data-filter="turbo">Turbo</button>
+        <button class="filter-btn" data-filter="rim">Rim</button>
+        <button class="filter-btn" data-filter="gearbox">Gearbox</button>
+        <button class="filter-btn" data-filter="other">Other</button>
+      </div>
+    </div>
+
+    <div class="product-grid" id="product-grid"></div>
+  </div>
+
+  <!-- DETAIL -->
+  <div id="detail-page">
+    <button class="back-btn" onclick="showListing()">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M19 12H5M12 5l-7 7 7 7"/></svg>
+      All products
+    </button>
+    <div class="detail-layout">
+      <div class="detail-img-wrap">
+        <img class="detail-img" id="d-img" src="" alt="">
+      </div>
+      <div class="detail-content">
+        <div>
+          <p class="detail-vendor" id="d-vendor"></p>
+          <h1 class="detail-title" id="d-title"></h1>
+        </div>
+        <p class="detail-price" id="d-price"></p>
+        <div class="detail-divider"></div>
+        <p class="detail-desc" id="d-desc"></p>
+        <p class="detail-stock" id="d-stock"></p>
+        <div class="detail-divider"></div>
+        <button class="add-to-cart-btn" id="add-to-cart-btn" onclick="addCurrentToCart()">Add to cart</button>
+      </div>
+    </div>
+  </div>
+</main>
+
+<!-- CART DRAWER -->
+<div class="cart-overlay" id="cart-overlay" onclick="closeCart()"></div>
+<div class="cart-drawer" id="cart-drawer">
+  <div class="cart-header">
+    <h2>Your cart</h2>
+    <button class="close-cart" onclick="closeCart()">×</button>
+  </div>
+  <div class="cart-items" id="cart-items">
+    <p class="cart-empty">Your cart is empty</p>
+  </div>
+  <div class="cart-footer" id="cart-footer" style="display:none">
+    <div class="cart-total">
+      <span>Total</span>
+      <span id="cart-total">$0.00</span>
+    </div>
+    <button class="checkout-btn" onclick="goToCheckout()">Checkout</button>
+    <p class="checkout-note">Secure checkout powered by Shopify</p>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+const PRODUCTS = [
+  {id:"7731165659203",variantId:"43476905885763",title:"Piston Keychain – Gold",vendor:"Drift Keys",price:16.99,img:"https://cdn.shopify.com/s/files/1/0697/3888/9283/files/Sf6a5e592c14b40da8090445635a7db81K_7d2e54e8-41f8-4255-8826-2ed91a2cad2b.webp?v=1782784634",desc:"A polished gold piston keychain with a bold machined look. Perfect for car enthusiasts, engine builders, and anyone who wants a small piece of performance culture on their keyring.",stock:6,type:"other"},
+  {id:"7731167002691",variantId:"43476909260867",title:"Rotary Chip Keychain – Matte Black",vendor:"Drift Keys",price:16.99,img:"https://cdn.shopify.com/s/files/1/0697/3888/9283/files/S1f207b34851548429132372299535c5dk_39b61b30-2f73-4bb5-9376-20f18547b51e.webp?v=1782785530",desc:"A clean matte black rotary chip keychain for Mazda rotary fans, car builders, and anyone who loves unique engine culture. Compact, subtle, and easy to carry.",stock:15,type:"other"},
+  {id:"7731167035459",variantId:"43476909293635",title:"Rotary Chip Keychain – Silver Chrome",vendor:"Drift Keys",price:16.99,img:"https://cdn.shopify.com/s/files/1/0697/3888/9283/files/S73eed56be21548e29d409f22282771cfT_cdb1a364-e49b-4a18-b1ec-e5d2cc37d8ea.webp?v=1782785531",desc:"A polished silver chrome rotary chip keychain with a clean mechanical look. A great small gift for rotary fans, Mazda enthusiasts, and car people who notice the details.",stock:14,type:"other"},
+  {id:"7731167756355",variantId:"43476910997571",title:"Rim Keychain – Red & Gold",vendor:"Drift Keys",price:22.99,img:"https://cdn.shopify.com/s/files/1/0697/3888/9283/files/S61a324aedd634c25baad1de494885be8Y.webp?v=1782785696",desc:"A bold red and gold rim keychain with a show-car look that stands out immediately. Great for wheel fans, drift builds, tuner culture, and anyone who appreciates a standout finish.",stock:3,type:"rim"},
+  {id:"7731167789123",variantId:"43476911063107",title:"Turbo Keychain – Gold",vendor:"Drift Keys",price:17.10,img:"https://cdn.shopify.com/s/files/1/0697/3888/9283/files/H09d3c86b9fec45cb97d4c9b2d407374ej_3802d911-2d44-46e2-95ac-bfbbbb145ae4.webp?v=1782785696",desc:"Every detail, perfectly miniaturized. This gold turbo keychain is a stunning tribute to forced induction — a must-have for any boost junkie.",stock:4,type:"turbo"},
+  {id:"7731167821891",variantId:"43476911128643",title:"Rim Keychain – Gunmetal",vendor:"Drift Keys",price:17.99,img:"https://cdn.shopify.com/s/files/1/0697/3888/9283/files/S333f5a6eba3c4ff3be1cc7d7ee3159c29_e892a90b-741d-4926-be43-d8e9931e69ab.webp?v=1782785697",desc:"A clean gunmetal rim keychain with an automotive-inspired look that fits right in with tuner, drift, and garage culture. Subtle enough for everyday carry.",stock:1,type:"rim"},
+  {id:"7731167854659",variantId:"43476911194179",title:"Mini Gearbox Keychain – Pink Red",vendor:"Drift Keys",price:17.10,img:"https://cdn.shopify.com/s/files/1/0697/3888/9283/files/Saccc982520af49a68d348e8fc9ee9587r_abcea49b-d728-4f28-9e12-81ed14875014.webp?v=1782785697",desc:"Bring a little drivetrain style to your everyday carry. This pink red mini gearbox keychain has a bold performance look with a compact automotive-inspired design.",stock:4,type:"gearbox"},
+  {id:"7731167887427",variantId:"43476911259715",title:"Mini Gearbox Keychain – Silver",vendor:"Drift Keys",price:17.23,img:"https://cdn.shopify.com/s/files/1/0697/3888/9283/files/H972f51b133b24818853796de9f99ae76r_6f1ad4af-d809-44f3-8ba1-3c36d02fd97f.webp?v=1782785698",desc:"Add a clean mechanical touch to your keys. This silver mini gearbox keychain has a sharp automotive-inspired look with just enough detail to stand out.",stock:4,type:"gearbox"},
+  {id:"7731167920195",variantId:"43476911325251",title:"Turbo Keychain – Red Copper",vendor:"Drift Keys",price:17.99,img:"https://cdn.shopify.com/s/files/1/0697/3888/9283/files/H1e0cc8aa354241df9285495ff73bea86b_f0ffb7f3-9cab-4f29-8056-04e37d75546d.webp?v=1782785699",desc:"Warm red copper finish on a precision turbo design. This eye-catching keychain is for those who appreciate the art of forced induction.",stock:5,type:"turbo"},
+  {id:"7731167952963",variantId:"43476911390787",title:"Turbo Keychain – Multicolor",vendor:"Drift Keys",price:17.99,img:"https://cdn.shopify.com/s/files/1/0697/3888/9283/files/H4802f4a0f03d423fa29ccf27464078f9s_afb85a49-600b-4fa2-8b17-3ce34508b897.webp?v=1782785698",desc:"Life's too short for one color. This vibrant multicolor turbo keychain brings personality and boost-fueled passion to your keyring.",stock:4,type:"turbo"},
+  {id:"7731167985731",variantId:"43476911423555",title:"Turbo Keychain – Stealth Black",vendor:"Drift Keys",price:17.99,img:"https://cdn.shopify.com/s/files/1/0697/3888/9283/files/Hef2fb165e9724fa6850c6945639d0b11N_8669da4e-dd12-415d-a71a-c0a76fac8ed7.webp?v=1782785699",desc:"All business, no distractions. This stealth black turbo keychain is for the driver who lives for boost and lets their build do the talking.",stock:10,type:"turbo"},
+  {id:"7731168018499",variantId:"43476911489091",title:"Rim Keychain – Multicolor Wide Style",vendor:"Drift Keys",price:17.99,img:"https://cdn.shopify.com/s/files/1/0697/3888/9283/files/S7ed91466af8d40c2be9128702dff71dcH_6487f264-60a9-493b-924e-e06c8992e8a1.webp?v=1782785699",desc:"A multicolor rim keychain with a wider, more aggressive style inspired by show cars and drift builds. Bright, bold, and made for car enthusiasts who want to stand out.",stock:7,type:"rim"},
+  {id:"7731168051267",variantId:"43476911554627",title:"Rim Keychain – Multicolor",vendor:"Drift Keys",price:17.99,img:"https://cdn.shopify.com/s/files/1/0697/3888/9283/files/S6f77a34c192f471b8213c0a10ce35dccF_ed979c8a-b46e-4aa7-9845-7cf04aa08b38.webp?v=1782785700",desc:"A colorful rim keychain with a bold car-show feel. The multicolor finish gives it a standout look while the wheel-inspired design makes it an easy conversation starter.",stock:4,type:"rim"},
+  {id:"7731168084035",variantId:"43476911652931",title:"Strut Keychain – Racing Red",vendor:"Drift Keys",price:17.99,img:"https://cdn.shopify.com/s/files/1/0697/3888/9283/files/S6a294e908c9a4b65b4cba4a051346fa3i_641f93ef-50ba-4136-8b57-fb57e9fc25af.webp?v=1782785701",desc:"A bold miniature strut keychain made for suspension fans, stance builds, and garage people who notice the little details. The racing red finish gives it a motorsport edge.",stock:2,type:"other"},
+  {id:"7731168116803",variantId:"43476911685699",title:"Rim Keychain – Matte Black XL",vendor:"Drift Keys",price:22.99,img:"https://cdn.shopify.com/s/files/1/0697/3888/9283/files/Sd733ea49b9874fcd9e11529db326fcd8w_966e8d73-cbbc-408b-a568-d90f4f3110ea.webp?v=1782785701",desc:"A larger matte black rim keychain with extra presence and a clean motorsport-inspired look. Built for car enthusiasts who want a bold wheel-style detail on their keyring.",stock:2,type:"rim"},
+  {id:"7731168149571",variantId:"43476911751235",title:"Mini Gearbox Keychain – Matte Black",vendor:"Drift Keys",price:17.99,img:"https://cdn.shopify.com/s/files/1/0697/3888/9283/files/H8c4af2d6d77549b8b73102ffec68ddf1R_a96f87ae-e4ad-49d2-986e-2becbc4bfb39.webp?v=1782785701",desc:"Dark, compact, and built with a performance-inspired attitude. This matte black mini gearbox keychain brings a subtle tuner-style detail to your everyday carry.",stock:6,type:"gearbox"},
+  {id:"7731168182339",variantId:"43476911816771",title:"Mini Gearbox Keychain – Gold",vendor:"Drift Keys",price:17.99,img:"https://cdn.shopify.com/s/files/1/0697/3888/9283/files/H84d5ab309d804a58905c6fdad2df5ca4t_8a7e3caf-d0a8-4813-a267-e5664e2e529a.webp?v=1782785702",desc:"Give your keyring a little flash with a mechanical edge. This gold mini gearbox keychain combines automotive-inspired detail with a bold finish.",stock:4,type:"gearbox"},
+  {id:"7731168215107",variantId:"43476911882307",title:"Gas Nozzle Keychain – Gold",vendor:"Drift Keys",price:17.99,img:"https://cdn.shopify.com/s/files/1/0697/3888/9283/files/S8ddfd2374de24e4899fa2a6ef5638c6ec_26ddc34c-aa4c-4f23-91de-3c418b0643b7.webp?v=1782785702",desc:"Fuel up your keyring with a bold automotive detail. This gold gas nozzle keychain has a clean miniature pump-handle look that fits right in with drift and car culture.",stock:2,type:"other"},
+  {id:"7731168247875",variantId:"43476911947843",title:"Mini Gearbox Keychain – Blue",vendor:"Drift Keys",price:17.99,img:"https://cdn.shopify.com/s/files/1/0697/3888/9283/files/H1b5685713a8547489ffbc6fc47f353898_e35a9d07-cc93-47a4-bd4d-b3698ba2f751.webp?v=1782785702",desc:"Bright, sporty, and made for car people. This blue mini gearbox keychain adds a pop of color and a performance-inspired mechanical look to your keyring.",stock:4,type:"gearbox"},
+  {id:"7731168280643",variantId:"43476912013379",title:"Turbo Keychain – Silver Chrome",vendor:"Drift Keys",price:18.99,img:"https://cdn.shopify.com/s/files/1/0697/3888/9283/files/Hb7aeb9373fe94da3a35dc1ca3615f044p_25e25e85-b977-415b-9d64-9b5efb6e5073.webp?v=1782785703",desc:"Refined and timeless. This chrome silver turbo keychain is a clean, classy way to show your love for all things boost.",stock:4,type:"turbo"}
+];
+
+// ── REPLACE THESE WHEN YOU HAVE YOUR STOREFRONT TOKEN ──
+const SHOPIFY_DOMAIN = 'driftkeys.myshopify.com';
+// Checkout uses cart permalink — no token needed
+// ───────────────────────────────────────────────────────
+
+let currentFilter = 'all';
+let currentProduct = null;
+let cart = [];
+
+function filtered() {
+  return currentFilter === 'all' ? PRODUCTS : PRODUCTS.filter(p => p.type === currentFilter);
+}
+
+function renderGrid() {
+  const list = filtered();
+  document.getElementById('count-label').textContent = list.length + ' product' + (list.length !== 1 ? 's' : '');
+  document.getElementById('product-grid').innerHTML = list.map(p => `
+    <div class="product-card" onclick="showDetail('${p.id}')">
+      ${p.stock <= 3 ? `<span class="low-stock-badge">Only ${p.stock} left</span>` : ''}
+      <img src="${p.img}" alt="${p.title}" loading="lazy">
+      <div class="card-body">
+        <p class="card-title">${p.title}</p>
+        <p class="card-price">$${p.price.toFixed(2)}</p>
+      </div>
+    </div>
+  `).join('');
+}
+
+function showDetail(id) {
+  currentProduct = PRODUCTS.find(p => p.id === id);
+  if (!currentProduct) return;
+  document.getElementById('listing-page').style.display = 'none';
+  document.getElementById('detail-page').style.display = 'block';
+  document.getElementById('d-img').src = currentProduct.img;
+  document.getElementById('d-img').alt = currentProduct.title;
+  document.getElementById('d-vendor').textContent = currentProduct.vendor;
+  document.getElementById('d-title').textContent = currentProduct.title;
+  document.getElementById('d-price').textContent = '$' + currentProduct.price.toFixed(2);
+  document.getElementById('d-desc').textContent = currentProduct.desc;
+  const stockEl = document.getElementById('d-stock');
+  if (currentProduct.stock <= 3) {
+    stockEl.textContent = 'Only ' + currentProduct.stock + ' left in stock — order soon';
+    stockEl.classList.add('low');
+  } else {
+    stockEl.textContent = 'In stock';
+    stockEl.classList.remove('low');
+  }
+  const btn = document.getElementById('add-to-cart-btn');
+  btn.textContent = 'Add to cart';
+  btn.disabled = false;
+  window.scrollTo(0, 0);
+}
+
+function showListing() {
+  document.getElementById('detail-page').style.display = 'none';
+  document.getElementById('listing-page').style.display = 'block';
+  currentProduct = null;
+}
+
+document.querySelectorAll('.filter-btn').forEach(btn => {
+  btn.addEventListener('click', () => {
+    document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
+    btn.classList.add('active');
+    currentFilter = btn.dataset.filter;
+    renderGrid();
+  });
+});
+
+// CART
+function addCurrentToCart() {
+  if (!currentProduct) return;
+  const existing = cart.find(i => i.id === currentProduct.id);
+  if (existing) {
+    existing.qty++;
+  } else {
+    cart.push({ ...currentProduct, qty: 1 });
+  }
+  updateCartUI();
+  showToast(currentProduct.title.split('–')[0].trim() + ' added to cart');
+  const btn = document.getElementById('add-to-cart-btn');
+  btn.textContent = 'Added ✓';
+  setTimeout(() => { btn.textContent = 'Add to cart'; }, 1500);
+}
+
+function updateCartUI() {
+  const total = cart.reduce((s, i) => s + i.qty, 0);
+  const countEl = document.getElementById('cart-count');
+  countEl.textContent = total;
+  countEl.classList.toggle('visible', total > 0);
+
+  const itemsEl = document.getElementById('cart-items');
+  const footerEl = document.getElementById('cart-footer');
+
+  if (cart.length === 0) {
+    itemsEl.innerHTML = '<p class="cart-empty">Your cart is empty</p>';
+    footerEl.style.display = 'none';
+    return;
+  }
+
+  footerEl.style.display = 'block';
+  itemsEl.innerHTML = cart.map((item, idx) => `
+    <div class="cart-item">
+      <img src="${item.img}" alt="${item.title}">
+      <div>
+        <p class="cart-item-title">${item.title}</p>
+        <p class="cart-item-price">$${item.price.toFixed(2)}</p>
+        <div class="cart-item-qty">
+          <button class="qty-btn" onclick="changeQty(${idx}, -1)">−</button>
+          <span class="qty-num">${item.qty}</span>
+          <button class="qty-btn" onclick="changeQty(${idx}, 1)">+</button>
+        </div>
+      </div>
+      <button class="remove-item" onclick="removeItem(${idx})">×</button>
+    </div>
+  `).join('');
+
+  const cartTotal = cart.reduce((s, i) => s + i.price * i.qty, 0);
+  document.getElementById('cart-total').textContent = '$' + cartTotal.toFixed(2);
+}
+
+function changeQty(idx, delta) {
+  cart[idx].qty += delta;
+  if (cart[idx].qty <= 0) cart.splice(idx, 1);
+  updateCartUI();
+}
+
+function removeItem(idx) {
+  cart.splice(idx, 1);
+  updateCartUI();
+}
+
+function openCart() {
+  document.getElementById('cart-overlay').classList.add('open');
+  document.getElementById('cart-drawer').classList.add('open');
+}
+
+function closeCart() {
+  document.getElementById('cart-overlay').classList.remove('open');
+  document.getElementById('cart-drawer').classList.remove('open');
+}
+
+function goToCheckout() {
+  if (cart.length === 0) return;
+
+  const btn = document.querySelector('.checkout-btn');
+  btn.textContent = 'Redirecting…';
+  btn.disabled = true;
+
+  // Build Shopify cart permalink — works without Storefront API token
+  const items = cart.map(i => `${i.variantId}:${i.qty}`).join(',');
+  const checkoutUrl = `https://${SHOPIFY_DOMAIN}/cart/${items}`;
+  window.location.href = checkoutUrl;
+}
+
+let toastTimer;
+function showToast(msg) {
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.classList.add('show');
+  clearTimeout(toastTimer);
+  toastTimer = setTimeout(() => t.classList.remove('show'), 2500);
+}
+
+renderGrid();
+</script>
+</body>
+</html>
