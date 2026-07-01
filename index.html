@@ -166,16 +166,28 @@
     background: var(--red);
   }
 
-  /* Red glow blob */
+  /* Red glow blobs */
   .hero-glow {
     position: absolute;
-    top: -80px;
-    left: -80px;
-    width: 520px;
-    height: 520px;
-    background: radial-gradient(circle, rgba(220,38,38,0.09) 0%, transparent 65%);
+    top: 50%;
+    left: -60px;
+    width: 640px;
+    height: 420px;
+    background: radial-gradient(ellipse at center, rgba(220,38,38,0.22) 0%, rgba(220,38,38,0.08) 45%, transparent 70%);
+    transform: translateY(-50%);
     pointer-events: none;
     animation: glow-pulse 5s ease-in-out infinite;
+    border-radius: 50%;
+  }
+  .hero-glow-2 {
+    position: absolute;
+    bottom: -60px;
+    right: 10%;
+    width: 380px;
+    height: 380px;
+    background: radial-gradient(circle, rgba(220,38,38,0.1) 0%, transparent 65%);
+    pointer-events: none;
+    animation: glow-pulse 7s ease-in-out infinite reverse;
     border-radius: 50%;
   }
 
@@ -1041,6 +1053,7 @@
   <div id="listing-page">
     <div class="hero">
       <div class="hero-glow"></div>
+      <div class="hero-glow-2"></div>
       <div class="hero-lines"></div>
       <div class="hero-badge">
         <span class="hero-badge-dot"></span>
