@@ -55,6 +55,36 @@
     pointer-events: none;
   }
 
+  /* FULL-PAGE AMBIENT GLOW */
+  .page-glow {
+    position: fixed;
+    inset: 0;
+    z-index: -1;
+    pointer-events: none;
+  }
+  .page-glow::before {
+    content: '';
+    position: absolute;
+    top: -15%;
+    left: -12%;
+    width: 70vw;
+    height: 75vh;
+    background: radial-gradient(ellipse at center, rgba(220,38,38,0.17) 0%, rgba(220,38,38,0.06) 45%, transparent 70%);
+    border-radius: 50%;
+    animation: glow-pulse 6s ease-in-out infinite;
+  }
+  .page-glow::after {
+    content: '';
+    position: absolute;
+    bottom: -15%;
+    right: -8%;
+    width: 50vw;
+    height: 55vh;
+    background: radial-gradient(ellipse at center, rgba(220,38,38,0.1) 0%, transparent 65%);
+    border-radius: 50%;
+    animation: glow-pulse 9s ease-in-out infinite reverse;
+  }
+
   /* Racing stripe */
   body::before {
     content: '';
@@ -1034,6 +1064,7 @@
 </head>
 <body>
 
+<div class="page-glow" aria-hidden="true"></div>
 <canvas id="bg-canvas" aria-hidden="true"></canvas>
 <div class="announcement-bar">
   <strong>Free shipping</strong> on orders over $50 &nbsp;·&nbsp; Ships within 2–3 business days
